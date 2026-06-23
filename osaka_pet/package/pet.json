@@ -1,0 +1,7 @@
+{
+  "id": "osaka",
+  "displayName": "Osaka",
+  "description": "A slow-reacting chibi Osaka desktop companion.",
+  "spritesheetPath": "spritesheet.webp",
+  "kind": "person"
+}
