@@ -105,7 +105,10 @@ class AssetPipelineTests(unittest.TestCase):
             base = Path(temp)
             keyposes = base / "keyposes"
             keyposes.mkdir()
-            names = ["happy", "shy", "cry", "surprised", "clicked", "drag", "sleep", "study", "thinking", "eating"]
+            names = [
+                "happy", "shy", "cry", "surprised", "clicked", "drag", "sleep", "study", "thinking", "eating",
+                "running-right", "running-left", "jumping", "waiting",
+            ]
             for name in names:
                 image = Image.new("RGBA", (300, 400), (0, 0, 0, 0))
                 for x in range(80, 220):
@@ -126,6 +129,10 @@ class AssetPipelineTests(unittest.TestCase):
                 with Image.open(path) as image:
                     self.assertEqual(image.mode, "RGBA")
                     self.assertEqual(image.size, (192, 208))
+            referenced = {frame for state_frames in self.CODEX_LAYOUT.values() for frame in state_frames}
+            for index in sorted(set(range(72)) - referenced):
+                with Image.open(frames / f"{index:03d}.png") as image:
+                    self.assertIsNone(image.getchannel("A").getbbox(), index)
 
 
 if __name__ == "__main__":

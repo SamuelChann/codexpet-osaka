@@ -48,13 +48,11 @@ def _load_fitted(keyposes_dir: Path):
         "happy": ((152, 192), 200),
         "shy": ((152, 192), 200),
         "cry": ((152, 192), 200),
-        "surprised": ((152, 192), 200),
-        "clicked": ((168, 192), 200),
-        "drag": ((176, 196), 200),
-        "sleep": ((176, 116), 196),
         "study": ((166, 164), 200),
-        "thinking": ((168, 192), 200),
-        "eating": ((160, 192), 200),
+        "running-right": ((176, 184), 200),
+        "running-left": ((176, 184), 200),
+        "jumping": ((160, 184), 196),
+        "waiting": ((160, 192), 200),
     }
     result = {}
     for name, (size, bottom) in settings.items():
@@ -71,46 +69,41 @@ def _load_fitted(keyposes_dir: Path):
 
 def compose_frames(keyposes_dir: Path, frames_dir: Path) -> None:
     poses = _load_fitted(Path(keyposes_dir))
-    # source, x offset, y offset, scale, rotation. Long repeated poses implement
-    # Osaka's deliberate pauses; visible motion remains intentionally tiny.
+    # Each group is one fixed Codex row. None emits a transparent unused cell.
+    # Source, x offset, y offset, scale, rotation. Long repeated poses preserve
+    # Osaka's deliberate pauses while drag and click states stay readable.
     recipes = [
-        # idle 0-7
+        # row 0 idle: 6 used, 2 transparent
         ("master",0,0,1.000,0),("master",0,-1,1.002,0),("master",0,-1,1.002,0),
-        ("master",0,0,1.000,0),("master",0,0,1.000,0),("master",1,0,1.000,-1.2),
-        ("master",1,0,1.000,-1.2),("master",0,0,1.000,0),
-        # happy 8-13: pause first, then two soft hops
-        ("master",0,0,1.000,0),("happy",0,0,0.985,0),("happy",0,-7,1.000,0),
-        ("happy",0,0,0.985,0),("happy",0,-5,1.000,0),("happy",0,0,0.985,0),
-        # shy 14-19
-        ("master",0,0,1.000,0),("shy",0,1,0.985,0),("shy",0,3,0.975,0),
-        ("shy",0,3,0.975,0),("shy",0,2,0.980,0.8),("shy",0,1,0.985,0),
-        # cry 20-25
-        ("cry",0,0,1.000,0),("cry",0,1,0.995,0),("cry",0,0,1.000,0),
-        ("cry",0,2,0.992,0),("cry",0,0,1.000,0),("cry",0,1,0.995,0),
-        # surprised 26-31: pop, long held confusion, settle
-        ("master",0,0,1.000,0),("surprised",0,-8,1.000,0),("surprised",0,-8,1.000,0),
-        ("surprised",0,-4,0.995,0),("surprised",0,-1,0.990,0),("master",0,0,1.000,0),
-        # clicked 32-37: freeze then slow hand raise
-        ("master",0,0,1.000,0),("master",0,0,1.000,0),("clicked",0,1,0.985,0),
-        ("clicked",0,0,0.992,0),("clicked",0,0,1.000,0),("master",0,0,1.000,0),
-        # drag 38-41
-        ("drag",-2,-2,0.970,-1.5),("drag",2,0,0.970,1.5),
-        ("drag",2,2,0.970,1.2),("drag",-2,0,0.970,-1.2),
-        # sleep 42-49
-        ("sleep",0,0,1.000,0),("sleep",0,0,1.008,0),("sleep",0,0,1.012,0),
-        ("sleep",0,0,1.008,0),("sleep",0,0,1.000,0),("sleep",0,1,0.995,0),
-        ("sleep",0,1,0.995,0),("sleep",0,0,1.000,0),
-        # study 50-57
+        ("master",0,0,1.000,0),("master",1,0,1.000,-1.2),("master",0,0,1.000,0),None,None,
+        # row 1 running-right
+        ("running-right",-2,0,0.985,-1.2),("running-right",0,-1,0.990,0),
+        ("running-right",2,0,0.985,1.2),("running-right",1,1,0.980,0.6),
+        ("running-right",-2,0,0.985,-1.2),("running-right",0,-1,0.990,0),
+        ("running-right",2,0,0.985,1.2),("running-right",1,1,0.980,0.6),
+        # row 2 running-left
+        ("running-left",2,0,0.985,1.2),("running-left",0,-1,0.990,0),
+        ("running-left",-2,0,0.985,-1.2),("running-left",-1,1,0.980,-0.6),
+        ("running-left",2,0,0.985,1.2),("running-left",0,-1,0.990,0),
+        ("running-left",-2,0,0.985,-1.2),("running-left",-1,1,0.980,-0.6),
+        # row 3 waving: delayed recognition, then a soft happy response
+        ("master",0,0,1.000,0),("happy",0,0,0.985,0),("happy",0,-4,0.995,0),("happy",0,0,0.985,0),
+        None,None,None,None,
+        # row 4 jumping: anticipation, lift, apex, landing, recovery
+        ("master",0,2,0.985,0),("jumping",0,-4,0.990,0),("jumping",0,-10,1.000,0),
+        ("jumping",0,-4,0.990,0),("master",0,0,1.000,0),None,None,None,
+        # row 5 failed
+        ("cry",0,0,1.000,0),("cry",0,1,0.995,0),("cry",0,0,1.000,0),("cry",0,2,0.992,0),
+        ("cry",0,0,1.000,0),("cry",0,1,0.995,0),("cry",0,0,1.000,0),("cry",0,2,0.992,0),
+        # row 6 waiting: notice, raise a hand, and hold a confused expectation
+        ("master",0,0,1.000,0),("waiting",0,0,0.990,0),("waiting",0,0,0.995,-1.0),
+        ("waiting",0,0,0.995,-1.0),("waiting",0,0,0.990,0),("waiting",0,0,0.990,0),None,None,
+        # row 7 running: actively studying while Codex works
         ("study",0,0,1.000,0),("study",0,1,0.997,0),("study",0,2,0.994,0),
-        ("study",0,1,0.997,0),("study",1,0,1.000,-1.0),("study",1,0,1.000,-1.0),
-        ("study",0,0,1.000,0),("study",0,0,1.000,0),
-        # thinking 58-63
-        ("master",0,0,1.000,0),("thinking",0,0,0.990,0),("thinking",0,0,0.990,-1.0),
-        ("thinking",0,0,0.990,-1.0),("thinking",0,0,0.990,0),("thinking",0,0,0.990,0),
-        # eating 64-71
-        ("eating",0,0,1.000,0),("eating",0,0,1.000,0),("eating",0,1,0.997,0),
-        ("eating",0,0,1.000,0),("eating",0,1,0.997,0),("eating",1,0,1.000,-0.8),
-        ("eating",-1,0,1.000,0.8),("eating",0,0,1.000,0),
+        ("study",0,1,0.997,0),("study",1,0,1.000,-1.0),("study",0,0,1.000,0),None,None,
+        # row 8 review: completed work, shyly awaiting inspection
+        ("master",0,0,1.000,0),("shy",0,1,0.985,0),("shy",0,3,0.975,0),
+        ("shy",0,3,0.975,0),("shy",0,2,0.980,0.8),("shy",0,1,0.985,0),None,None,
     ]
     if len(recipes) != 72:
         raise AssertionError(f"expected 72 recipes, got {len(recipes)}")
@@ -118,8 +111,9 @@ def compose_frames(keyposes_dir: Path, frames_dir: Path) -> None:
     frames_dir.mkdir(parents=True, exist_ok=True)
     for old in frames_dir.glob("*.png"):
         old.unlink()
-    for index, (name, dx, dy, scale, angle) in enumerate(recipes):
-        _variant(poses[name], dx, dy, scale, angle).save(frames_dir / f"{index:03d}.png", optimize=True)
+    for index, recipe in enumerate(recipes):
+        frame = Image.new("RGBA", CANVAS, (0, 0, 0, 0)) if recipe is None else _variant(poses[recipe[0]], *recipe[1:])
+        frame.save(frames_dir / f"{index:03d}.png", optimize=True)
 
 
 if __name__ == "__main__":
