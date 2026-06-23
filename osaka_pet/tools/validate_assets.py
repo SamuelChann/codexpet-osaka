@@ -4,10 +4,31 @@ import math
 
 from PIL import Image
 
-REQUIRED_STATES = {
-    "idle", "happy", "shy", "cry", "surprised", "clicked",
-    "drag", "sleep", "study", "thinking", "eating",
+CODEX_LAYOUT = {
+    "idle": (0, 6),
+    "running-right": (1, 8),
+    "running-left": (2, 8),
+    "waving": (3, 4),
+    "jumping": (4, 5),
+    "failed": (5, 8),
+    "waiting": (6, 6),
+    "running": (7, 6),
+    "review": (8, 6),
 }
+
+
+def expected_frames(row: int, count: int):
+    start = row * 8
+    return list(range(start, start + count))
+
+
+def unused_frames():
+    referenced = {
+        frame
+        for row, count in CODEX_LAYOUT.values()
+        for frame in expected_frames(row, count)
+    }
+    return sorted(set(range(72)) - referenced)
 
 
 def _green_residue_ratio(image: Image.Image) -> float:
@@ -38,7 +59,7 @@ def validate_assets(root: Path):
     if data.get("schemaVersion") != 1:
         errors.append("schemaVersion must be 1")
     animations = data.get("animations", {})
-    if set(animations) != REQUIRED_STATES:
+    if list(animations) != list(CODEX_LAYOUT):
         errors.append("required animation states mismatch")
     referenced = []
     for name, animation in animations.items():
@@ -47,6 +68,10 @@ def validate_assets(root: Path):
                 errors.append(f"{name}: missing {field}")
         frames = animation.get("frames", [])
         referenced.extend(frames)
+        if name in CODEX_LAYOUT:
+            row, count = CODEX_LAYOUT[name]
+            if frames != expected_frames(row, count):
+                errors.append(f"{name}: frames must stay within Codex row {row}")
         if len(frames) != len(animation.get("durationsMs", [])):
             errors.append(f"{name}: durations length mismatch")
         if any(not isinstance(i, int) or i < 0 or i >= 72 for i in frames):
@@ -61,8 +86,9 @@ def validate_assets(root: Path):
                 errors.append(f"{name}: invalid {field}")
             elif rect["x"] < 0 or rect["y"] < 0 or rect["width"] <= 0 or rect["height"] <= 0 or rect["x"] + rect["width"] > 192 or rect["y"] + rect["height"] > 208:
                 errors.append(f"{name}: {field} outside canvas")
-    if sorted(referenced) != list(range(72)):
-        errors.append("frame references must cover 0-71 exactly once")
+    expected_referenced = sorted(set(range(72)) - set(unused_frames()))
+    if sorted(referenced) != expected_referenced:
+        errors.append("frame references must cover each used Codex cell exactly once")
     for index in range(72):
         path = root / "frames" / f"{index:03d}.png"
         if not path.exists():
@@ -77,6 +103,10 @@ def validate_assets(root: Path):
                 continue
             image = source.copy()
         alpha = image.getchannel("A")
+        if index in unused_frames():
+            if alpha.getbbox() is not None:
+                errors.append(f"{path.name}: unused Codex cell must be transparent")
+            continue
         corners = (
             alpha.crop((0, 0, 16, 16)), alpha.crop((176, 0, 192, 16)),
             alpha.crop((0, 192, 16, 208)), alpha.crop((176, 192, 192, 208)),

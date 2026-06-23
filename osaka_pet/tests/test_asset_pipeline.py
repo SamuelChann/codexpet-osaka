@@ -29,9 +29,11 @@ class AssetPipelineTests(unittest.TestCase):
 
     def make_frames(self, directory: Path):
         directory.mkdir(parents=True, exist_ok=True)
+        used = {frame for frames in self.CODEX_LAYOUT.values() for frame in frames}
         for index in range(72):
             image = Image.new("RGBA", (192, 208), (0, 0, 0, 0))
-            image.putpixel((96, 100), (80, 50, 40, 255))
+            if index in used:
+                image.putpixel((96, 100), (80, 50, 40, 255))
             image.save(directory / f"{index:03d}.png")
 
     def test_build_and_split_atlas_are_pixel_exact(self):
