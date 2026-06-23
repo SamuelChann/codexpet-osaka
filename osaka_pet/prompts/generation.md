@@ -27,3 +27,14 @@ Every state prompt must repeat the master invariants above and use both `osaka.p
 - study: seated reading a tiny notebook, slow nod, page turn, brief daydream.
 - thinking: head tilt, vacant gaze, tiny question mark or cloud.
 - eating: hold a small rice ball, observe it, slow bites, satisfied sway.
+
+## Codex nine-row key poses
+
+These poses use `osaka.png` for identity and `reference\osaka_pet_master.png` as the exact visual master. Every source uses a perfectly flat `#00FF00` chroma-key background with no shadow, gradient, floor, reflection, text, symbol, watermark, extra character, or green on the subject.
+
+- running-right: full-body Osaka moving toward screen-right while her straight hair, arms, skirt, and legs lag gently toward screen-left; small running/dangling stride; vacant neutral expression; no external hand or motion lines.
+- running-left: full-body Osaka moving toward screen-left while her straight hair, arms, skirt, and legs lag gently toward screen-right; preserve asymmetric hair and uniform details rather than mirroring pixels.
+- jumping: the apex of a tiny delayed click reaction; both feet slightly lifted and unevenly tucked, hands close to chest, hair floating only a little, round eyes and tiny `o` mouth; confused rather than energetic.
+- waiting: standing with feet planted, a small delayed head tilt, one hand slightly raised with an open palm, wide attentive eyes and a tiny uncertain mouth; expectant and gently confused, with no question mark or speech bubble.
+
+The earlier `drag`, `surprised`, and `clicked` prompts remain as source-material history. They are not runtime row names in the Codex nine-row package.
