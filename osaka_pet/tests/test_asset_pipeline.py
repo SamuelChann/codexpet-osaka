@@ -15,6 +15,18 @@ from validate_assets import validate_assets
 
 
 class AssetPipelineTests(unittest.TestCase):
+    CODEX_LAYOUT = {
+        "idle": list(range(0, 6)),
+        "running-right": list(range(8, 16)),
+        "running-left": list(range(16, 24)),
+        "waving": list(range(24, 28)),
+        "jumping": list(range(32, 37)),
+        "failed": list(range(40, 48)),
+        "waiting": list(range(48, 54)),
+        "running": list(range(56, 62)),
+        "review": list(range(64, 70)),
+    }
+
     def make_frames(self, directory: Path):
         directory.mkdir(parents=True, exist_ok=True)
         for index in range(72):
@@ -36,6 +48,22 @@ class AssetPipelineTests(unittest.TestCase):
             self.assertEqual(len(split), 72)
             with Image.open(frames / "071.png") as source:
                 self.assertEqual(split[71].tobytes(), source.tobytes())
+
+    def test_manifest_uses_codex_nine_row_contract(self):
+        manifest = json.loads((ROOT / "osaka_pet.animations.json").read_text(encoding="utf-8"))
+        animations = manifest["animations"]
+        self.assertEqual(list(animations), list(self.CODEX_LAYOUT))
+        self.assertEqual(
+            {name: animation["frames"] for name, animation in animations.items()},
+            self.CODEX_LAYOUT,
+        )
+
+    def test_unused_codex_cells_are_fully_transparent(self):
+        referenced = {frame for frames in self.CODEX_LAYOUT.values() for frame in frames}
+        unused = sorted(set(range(72)) - referenced)
+        for index in unused:
+            with Image.open(ROOT / "frames" / f"{index:03d}.png") as frame:
+                self.assertIsNone(frame.convert("RGBA").getchannel("A").getbbox(), index)
 
     def test_validator_accepts_complete_asset_set(self):
         with tempfile.TemporaryDirectory() as temp:
