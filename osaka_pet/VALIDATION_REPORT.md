@@ -31,4 +31,8 @@ python -m unittest discover -s osaka_pet\tests -v
 
 ## 安装交互验证
 
-最终安装后验证：静止、向左拖、向右拖、任务运行、等待输入、失败和完成待查看。点击窗口当前用于打开主窗口；Codex 26.616.9593 已定义 `jumping` 行，但浮动桌宠的普通点击是否显示该行由宿主版本控制。
+2026-06-23 已将 `package\pet.json` 与 `package\spritesheet.webp` 安装到 `%USERPROFILE%\.codex\pets\osaka`，两份安装文件的 SHA-256 与运行包逐字节一致。
+
+Codex 26.616.9593 宿主代码确认：向右拖与向左拖分别选择 `running-right` 和 `running-left`；任务执行、等待输入、失败、完成待查看分别选择 `running`、`waiting`、`failed`、`review`。普通点击当前用于打开主窗口；宿主虽然定义 `jumping` 行，但是否在点击时显示由宿主版本控制。
+
+受自动化规则限制，未通过工具操控 Codex 桌面应用。安装后需人工观察左右拖拽方向，以及一次任务从 `running` 切换到 `waiting` 或 `review` 的过程。
