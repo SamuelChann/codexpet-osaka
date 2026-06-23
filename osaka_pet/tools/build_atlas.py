@@ -47,6 +47,8 @@ def build_previews(frames_dir: Path, manifest_path: Path, output_dir: Path) -> N
     data = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    for old in output_dir.glob("*.webp"):
+        old.unlink()
     for name, animation in data["animations"].items():
         images = []
         for index in animation["frames"]:
@@ -60,6 +62,16 @@ def build_previews(frames_dir: Path, manifest_path: Path, output_dir: Path) -> N
             loop=0 if animation["loop"] else 1,
             lossless=True,
         )
+
+
+def build_package(atlas_path: Path, package_path: Path) -> None:
+    with Image.open(atlas_path) as source:
+        atlas = source.convert("RGBA")
+    if atlas.size != ATLAS_SIZE:
+        raise ValueError(f"expected atlas size {ATLAS_SIZE}, got {atlas.size}")
+    package_path = Path(package_path)
+    package_path.parent.mkdir(parents=True, exist_ok=True)
+    atlas.save(package_path, format="WEBP", lossless=True, exact=True, method=6)
 
 
 def sync_manifest_geometry(frames_dir: Path, manifest_path: Path) -> None:
@@ -97,4 +109,5 @@ if __name__ == "__main__":
     sync_manifest_geometry(root / "frames", root / "osaka_pet.animations.json")
     build_atlas(root / "frames", root / "osaka_pet_atlas.png")
     build_previews(root / "frames", root / "osaka_pet.animations.json", root / "previews")
-    print(f"Built {root / 'osaka_pet_atlas.png'} and previews")
+    build_package(root / "osaka_pet_atlas.png", root / "package" / "spritesheet.webp")
+    print(f"Built {root / 'osaka_pet_atlas.png'}, previews, and package spritesheet")

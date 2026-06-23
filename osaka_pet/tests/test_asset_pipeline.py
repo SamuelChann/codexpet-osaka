@@ -9,7 +9,8 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
-from build_atlas import build_atlas, split_atlas, sync_manifest_geometry
+import build_atlas as atlas_tools
+from build_atlas import build_atlas, build_previews, split_atlas, sync_manifest_geometry
 from create_frames import compose_frames, fit_keypose
 from validate_assets import validate_assets
 
@@ -89,6 +90,35 @@ class AssetPipelineTests(unittest.TestCase):
             sync_manifest_geometry(frames, path)
             updated = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(updated["animations"]["idle"]["bounds"], {"x": 96, "y": 100, "width": 1, "height": 1})
+
+    def test_build_previews_removes_legacy_state_files(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            frames = base / "frames"
+            self.make_frames(frames)
+            output = base / "previews"
+            output.mkdir()
+            (output / "sleep.webp").write_bytes(b"legacy")
+            build_previews(frames, ROOT / "osaka_pet.animations.json", output)
+            self.assertEqual(
+                sorted(path.stem for path in output.glob("*.webp")),
+                sorted(self.CODEX_LAYOUT),
+            )
+
+    def test_build_package_writes_lossless_rgba_webp(self):
+        self.assertTrue(callable(getattr(atlas_tools, "build_package", None)))
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            frames = base / "frames"
+            self.make_frames(frames)
+            atlas = base / "atlas.png"
+            package = base / "spritesheet.webp"
+            build_atlas(frames, atlas)
+            atlas_tools.build_package(atlas, package)
+            with Image.open(package) as image:
+                self.assertEqual(image.format, "WEBP")
+                self.assertEqual(image.mode, "RGBA")
+                self.assertEqual(image.size, (1536, 1872))
 
     def test_fit_keypose_preserves_rgba_and_safe_margin(self):
         source = Image.new("RGBA", (400, 600), (0, 0, 0, 0))
