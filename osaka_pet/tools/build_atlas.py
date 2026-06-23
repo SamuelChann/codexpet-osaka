@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Iterable
 import json
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 FRAME_SIZE = (192, 208)
 GRID = (8, 9)
@@ -74,6 +74,38 @@ def build_package(atlas_path: Path, package_path: Path) -> None:
     atlas.save(package_path, format="WEBP", lossless=True, exact=True, method=6)
 
 
+def build_contact_sheet(frames_dir: Path, manifest_path: Path, output_path: Path) -> None:
+    data = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
+    row_height = FRAME_SIZE[1] + 28
+    sheet = Image.new("RGBA", (ATLAS_SIZE[0], row_height * GRID[1]), (14, 17, 22, 255))
+    draw = ImageDraw.Draw(sheet)
+    animations = list(data["animations"].items())
+    for row, (name, animation) in enumerate(animations):
+        top = row * row_height
+        draw.text((8, top + 7), f"row {row}  {name}  {len(animation['frames'])} frames", fill=(240, 244, 250, 255))
+        for column in range(GRID[0]):
+            cell_x = column * FRAME_SIZE[0]
+            cell_y = top + 28
+            tile = 16
+            for y in range(0, FRAME_SIZE[1], tile):
+                for x in range(0, FRAME_SIZE[0], tile):
+                    shade = 236 if (x // tile + y // tile) % 2 == 0 else 208
+                    draw.rectangle(
+                        (cell_x + x, cell_y + y, cell_x + min(x + tile, FRAME_SIZE[0]) - 1, cell_y + min(y + tile, FRAME_SIZE[1]) - 1),
+                        fill=(shade, shade, shade, 255),
+                    )
+            index = row * GRID[0] + column
+            with Image.open(Path(frames_dir) / f"{index:03d}.png") as source:
+                frame = source.convert("RGBA")
+            sheet.alpha_composite(frame, (cell_x, cell_y))
+            border = (43, 164, 91, 255) if index in animation["frames"] else (205, 61, 71, 255)
+            draw.rectangle((cell_x, cell_y, cell_x + FRAME_SIZE[0] - 1, cell_y + FRAME_SIZE[1] - 1), outline=border, width=2)
+            draw.text((cell_x + 5, cell_y + 4), str(column), fill=(15, 20, 25, 255))
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(output_path, optimize=True)
+
+
 def sync_manifest_geometry(frames_dir: Path, manifest_path: Path) -> None:
     manifest_path = Path(manifest_path)
     data = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -110,4 +142,5 @@ if __name__ == "__main__":
     build_atlas(root / "frames", root / "osaka_pet_atlas.png")
     build_previews(root / "frames", root / "osaka_pet.animations.json", root / "previews")
     build_package(root / "osaka_pet_atlas.png", root / "package" / "spritesheet.webp")
-    print(f"Built {root / 'osaka_pet_atlas.png'}, previews, and package spritesheet")
+    build_contact_sheet(root / "frames", root / "osaka_pet.animations.json", root / "contact-sheet.png")
+    print(f"Built {root / 'osaka_pet_atlas.png'}, previews, package spritesheet, and contact sheet")

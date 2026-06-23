@@ -120,6 +120,18 @@ class AssetPipelineTests(unittest.TestCase):
                 self.assertEqual(image.mode, "RGBA")
                 self.assertEqual(image.size, (1536, 1872))
 
+    def test_build_contact_sheet_labels_nine_codex_rows(self):
+        self.assertTrue(callable(getattr(atlas_tools, "build_contact_sheet", None)))
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            frames = base / "frames"
+            self.make_frames(frames)
+            output = base / "contact-sheet.png"
+            atlas_tools.build_contact_sheet(frames, ROOT / "osaka_pet.animations.json", output)
+            with Image.open(output) as image:
+                self.assertEqual(image.mode, "RGBA")
+                self.assertEqual(image.size, (1536, 2124))
+
     def test_fit_keypose_preserves_rgba_and_safe_margin(self):
         source = Image.new("RGBA", (400, 600), (0, 0, 0, 0))
         for x in range(100, 300):
