@@ -8,6 +8,8 @@ This repository contains a small animated desktop-pet asset package inspired by 
 
 ## Features
 
+![Osaka pet spritesheet](osaka_pet/package/spritesheet.webp)
+
 * Chibi Osaka-style desktop companion
 * Transparent animated sprite assets
 * Nine-row Codex-compatible animation layout
