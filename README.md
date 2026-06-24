@@ -1,56 +1,48 @@
-﻿# Osaka
+# Codex Pet: Osaka
 
-一个以大阪（春日步）为角色的 Codex Q 版桌面宠物包。
+[English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-## 文件
+A chibi Osaka (Ayumu Kasuga) desktop pet package for Codex.
 
-- `pet.json`: Codex 自定义桌宠清单。
-- `spritesheet.webp`: 透明背景动画图集，尺寸为 `1536x1872`。
-- `docs/contact-sheet.png`: 动作表预览。
+## Preview
 
-## 预览
+![Osaka animation contact sheet](docs/contact-sheet.png)
 
-![Osaka contact sheet](docs/contact-sheet.png)
+## Files
 
-## 安装
+- `pet.json`: Codex custom pet manifest.
+- `spritesheet.webp`: Transparent animation spritesheet, `1536x1872`.
+- `docs/contact-sheet.png`: Preview of all animation states and frames.
 
-把整个 `osaka` 文件夹放到：
+## Installation
+
+Copy `pet.json` and `spritesheet.webp` to:
 
 ```text
 %USERPROFILE%\.codex\pets\osaka
 ```
 
-目录结构应为：
+Restart Codex and select **Osaka** in the pet settings.
 
-```text
-osaka/
-  pet.json
-  spritesheet.webp
-```
+## Animation layout
 
-## 动画状态
+The spritesheet uses the Codex pet layout: 8 columns, 9 rows, and 192x208 pixels per cell.
 
-图集遵循 Codex 桌宠固定格式：`8` 列、`9` 行，每格 `192x208`。
-
-| 行 | 状态 | 语义 |
+| Row | State | Animation |
 | --- | --- | --- |
-| 0 | idle | 发呆、呼吸、眨眼 |
-| 1 | running-right | 被向右拖动 |
-| 2 | running-left | 被向左拖动 |
-| 3 | waving | 开心挥手 |
-| 4 | jumping | 点击后的慢半拍小跳 |
-| 5 | failed | 漫画式捂眼哭泣 |
-| 6 | waiting | 张大嘴笑着挥手等待 |
-| 7 | running | 看书、翻页和打瞌睡 |
-| 8 | review | 跪坐低头并偷偷抬眼 |
+| 0 | idle | Breathing and blinking |
+| 1 | running-right | Dragged to the right |
+| 2 | running-left | Dragged to the left |
+| 3 | waving | Cheerful wave |
+| 4 | jumping | Soft delayed jump |
+| 5 | failed | Comedic crying pose |
+| 6 | waiting | Big smile and active wave |
+| 7 | running | Reading, page-turning, and dozing off |
+| 8 | review | Seiza pose with a shy upward peek |
 
-## 校验
+## Validation
 
-- 图集格式：WebP / RGBA
-- 图集尺寸：`1536x1872`
-- 单元格：`192x208`
-- 透明像素 RGB 残留：`0`
-
-## 说明
-
-此包只包含桌宠运行所需文件，没有游戏 UI、Logo、水印或背景。角色素材按统一的 Q 版 2.5D 风格制作，并整理为 Codex 桌宠固定九行动画图集。
+- WebP / RGBA
+- `1536x1872` spritesheet
+- `192x208` cells
+- Transparent background
