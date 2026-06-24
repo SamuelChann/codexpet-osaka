@@ -1,125 +1,56 @@
-# codexpet-osaka
+﻿# Osaka
 
-A slow-reacting chibi Osaka desktop companion for Codex Pet.
+一个以大阪（春日步）为角色的 Codex Q 版桌面宠物包。
 
-This repository contains a small animated desktop-pet asset package inspired by Ayumu Kasuga, commonly known as Osaka, from *Azumanga Daioh*. The goal is to preserve the character’s sleepy, absent-minded, harmless, and “half-a-beat late” personality in a soft 2.5D chibi style.
+## 文件
 
-> This is a fan-made personal project. It is not affiliated with, endorsed by, or sponsored by the original rights holders.
+- `pet.json`: Codex 自定义桌宠清单。
+- `spritesheet.webp`: 透明背景动画图集，尺寸为 `1536x1872`。
+- `docs/contact-sheet.png`: 动作表预览。
 
-## Features
+## 预览
 
-![Osaka pet spritesheet](osaka_pet/package/spritesheet.webp)
+![Osaka contact sheet](docs/contact-sheet.png)
 
-* Chibi Osaka-style desktop companion
-* Transparent animated sprite assets
-* Nine-row Codex-compatible animation layout
-* Slow, soft, low-energy motion timing
-* Multiple interaction states:
+## 安装
 
-  * idle
-  * happy
-  * shy
-  * cry
-  * surprised
-  * clicked
-  * drag
-  * sleep
-  * study
-  * thinking
-  * eating
-* Packaged `pet.json` and spritesheet assets
-* Validation notes for installation and runtime behavior
-
-## Character Direction
-
-The pet is designed around Osaka’s recognizable personality traits:
-
-* slow reaction timing
-* vacant forward stare
-* soft and harmless expression
-* slightly confused but sincere behavior
-* quiet, sleepy, naturally funny body language
-
-The animation should feel like a tiny desktop companion that watches, waits, studies, eats, and reacts just a little too late.
-
-## Repository Structure
+把整个 `osaka` 文件夹放到：
 
 ```text
-codexpet-osaka/
-├─ README.md
-├─ osaka_pet/
-│  ├─ package/
-│  │  ├─ pet.json
-│  │  └─ spritesheet.webp
-│  ├─ tests/
-│  └─ VALIDATION_REPORT.md
-└─ ...
+%USERPROFILE%\.codex\pets\osaka
 ```
 
-Depending on the current build, generated assets may include animation metadata, validation reports, package files, and preview or source-frame directories.
+目录结构应为：
 
-## Installation
-
-Clone the repository:
-
-```powershell
-git clone https://github.com/SamuelChann/codexpet-osaka.git
-cd codexpet-osaka
+```text
+osaka/
+  pet.json
+  spritesheet.webp
 ```
 
-Install the packaged pet into the local Codex pet directory:
+## 动画状态
 
-```powershell
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.codex\pets\osaka"
-Copy-Item -Recurse -Force ".\osaka_pet\package\*" "$env:USERPROFILE\.codex\pets\osaka\"
-```
+图集遵循 Codex 桌宠固定格式：`8` 列、`9` 行，每格 `192x208`。
 
-After installation, restart or reload Codex Pet if needed.
+| 行 | 状态 | 语义 |
+| --- | --- | --- |
+| 0 | idle | 发呆、呼吸、眨眼 |
+| 1 | running-right | 被向右拖动 |
+| 2 | running-left | 被向左拖动 |
+| 3 | waving | 开心挥手 |
+| 4 | jumping | 点击后的慢半拍小跳 |
+| 5 | failed | 漫画式捂眼哭泣 |
+| 6 | waiting | 张大嘴笑着挥手等待 |
+| 7 | running | 看书、翻页和打瞌睡 |
+| 8 | review | 跪坐低头并偷偷抬眼 |
 
-## Validation
+## 校验
 
-Run the test suite from the repository root:
+- 图集格式：WebP / RGBA
+- 图集尺寸：`1536x1872`
+- 单元格：`192x208`
+- 透明像素 RGB 残留：`0`
 
-```powershell
-python -m unittest discover -s osaka_pet\tests -v
-```
+## 说明
 
-The validation process checks that the package files are present and that the animation package follows the expected Codex-compatible layout.
-
-## Animation Design
-
-The animation timing is intentionally slow. Reactions usually begin with a short pause before the visible movement happens. This is important to the character identity: Osaka should not feel energetic, sharp, or overly responsive.
-
-Typical state behavior:
-
-| State     | Behavior                                            |
-| --------- | --------------------------------------------------- |
-| idle      | Slow breathing, delayed blink, vacant stare         |
-| happy     | Delayed realization, two soft hops                  |
-| shy       | Shrinks slightly, blushes, tiny awkward nod         |
-| cry       | Small sobbing motion with stylized tears            |
-| surprised | Small pop-up, round eyes, delayed recovery          |
-| clicked   | Freezes, slowly raises one hand, confused reaction  |
-| drag      | Arms lifted, legs dangling, soft sway               |
-| sleep     | Curled or side-lying breathing loop                 |
-| study     | Reads, nods, turns page, briefly daydreams          |
-| thinking  | Head tilt, blank stare, small question/cloud cue    |
-| eating    | Watches food, takes slow bites, tiny satisfied sway |
-
-## Development Notes
-
-The package is designed around a fixed character identity. When editing or extending the pet, avoid regenerating the entire character from scratch unless the master identity is being replaced.
-
-Recommended workflow:
-
-1. Keep the same face, hairstyle, outfit, proportions, and color palette.
-2. Modify only the target animation state.
-3. Rebuild the spritesheet or package.
-4. Run validation.
-5. Inspect for face drift, outfit drift, anchor jumps, timing issues, and dirty transparent edges.
-
-## License / Usage
-
-This project is intended as a fan-made local desktop pet asset package. Do not use it in a way that implies official affiliation with *Azumanga Daioh* or its rights holders.
-
-Code and configuration in this repository may be reused for personal desktop-pet experiments, but the character concept and reference identity belong to their respective rights holders.
+此包只包含桌宠运行所需文件，没有游戏 UI、Logo、水印或背景。角色素材按统一的 Q 版 2.5D 风格制作，并整理为 Codex 桌宠固定九行动画图集。
